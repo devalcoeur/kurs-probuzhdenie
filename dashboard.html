@@ -259,7 +259,7 @@ async function loadStats() {
     const totalClients = clients.length;
     const totalSales = clients.filter(c => c.status === "Продано").length;
     const totalRevenue = clients.reduce((sum, c) => sum + c.amount, 0);
-    const totalCommission = totalSales * 14000;
+    const totalCommission = totalSales * 15000;
 
     document.getElementById('s-clients').textContent = totalClients;
     document.getElementById('s-sales').textContent = totalSales;
@@ -328,7 +328,7 @@ function renderPartners(partners) {
     var salesList = allClients.filter(function(c){ return c.promoCode === p.code && c.status === 'Продано'; });
     for (var si = 1; si <= salesList.length; si++) {
       var rate = si <= 10 ? 0.20 : si <= 20 ? 0.30 : 0.40;
-      commission += 70000 * rate;
+      commission += 75000 * rate;
     }
 
     return '<tr>'
@@ -350,13 +350,13 @@ function renderStats() {
   var totalClients = allClients.length;
   var totalPartners = allPartners.length;
   var soldClients = allClients.filter(function(c){ return c.status === 'Продано'; });
-  var totalRevenue = soldClients.length * 70000;
-  var totalCommission = soldClients.length * 14000;
+  var totalRevenue = soldClients.length * 75000;
+  var totalCommission = soldClients.length * 15000;
 
   var partnerStats = allPartners.map(function(p) {
     var clients = allClients.filter(function(c){ return c.promoCode === p.code; });
     var sold = clients.filter(function(c){ return c.status === 'Продано'; });
-    return {name: p.name, code: p.code, clients: clients.length, sold: sold.length, commission: sold.length * 14000};
+    return {name: p.name, code: p.code, clients: clients.length, sold: sold.length, commission: sold.length * 15000};
   }).sort(function(a,b){ return b.sold - a.sold; });
 
   document.getElementById('stats-content').innerHTML = 
@@ -391,7 +391,7 @@ function renderStats() {
 function updateStatus(clientId, newStatus) {
   var amount = 0;
   if (newStatus === 'Продано') {
-    amount = prompt('Введите сумму оплаты (₽):', '70000');
+    amount = prompt('Введите сумму оплаты (₽):', '75000');
     if (!amount) return;
     amount = parseInt(amount);
   }
