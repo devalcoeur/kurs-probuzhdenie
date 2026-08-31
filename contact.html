@@ -109,12 +109,17 @@ var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwCXXq-Q949sRBkHKK4mm
 // Получить промокод из URL
 var urlParams = new URLSearchParams(window.location.search);
 var refCode = urlParams.get('ref') || '';
+var TTL = 30*24*60*60*1000; // 30 jours
 
-// Mémoriser le code partenaire pour qu'il suive le client sur toutes les pages
+// Mémoriser le code (avec la date) s'il vient d'un lien ; sinon récupérer s'il n'a pas expiré
 if (refCode) {
-  try { localStorage.setItem('partnerRef', refCode.trim().toUpperCase()); } catch(e){}
+  try { localStorage.setItem('partnerRef', JSON.stringify({code: refCode.trim().toUpperCase(), ts: Date.now()})); } catch(e){}
 } else {
-  try { refCode = localStorage.getItem('partnerRef') || ''; } catch(e){}
+  try {
+    var saved = JSON.parse(localStorage.getItem('partnerRef') || 'null');
+    if (saved && saved.code && (Date.now() - saved.ts) < TTL) { refCode = saved.code; }
+    else { localStorage.removeItem('partnerRef'); refCode = ''; }
+  } catch(e){ refCode = ''; }
 }
 
 if (refCode) {
