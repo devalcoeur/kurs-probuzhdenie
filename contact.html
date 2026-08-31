@@ -91,8 +91,7 @@ h1 em{font-style:normal;color:var(--gd)}
             <span style="color:var(--gd);font-weight:700">75 000 ₽</span>
             <span style="display:inline-block;margin-left:.4rem;padding:.15rem .5rem;background:var(--gd);color:#0a0a0a;border-radius:4px;font-size:.62rem;letter-spacing:.05em;vertical-align:middle">−25%</span>
           </p>
-          <div id="rk-btn-full"><script type="text/javascript" src="https://auth.robokassa.ru/Merchant/PaymentForm/FormSS.js?EncodedInvoiceId=Oot4DXsIc0mqvAQFyYAsug"></script></div>
-          <div id="rk-btn-promo" style="display:none"><script type="text/javascript" src="https://auth.robokassa.ru/Merchant/PaymentForm/FormSS.js?EncodedInvoiceId=fD0iUO3hmk2sqGKD8SMTAQ"></script></div>
+          <div id="rk-btn"></div>
         </div>
       </div>
     </div>
@@ -105,7 +104,7 @@ h1 em{font-style:normal;color:var(--gd)}
 
 <script>
 // Google Apps Script URL — замени после деплоя
-var SCRIPT_URL = 'ВАШ_URL_APPS_SCRIPT';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwCXXq-Q949sRBkHKK4mmp2Iy2ler8C54HpCBnJ9tZScC1JSqA5kcFhOSVR-4Pr0Y/exec';
 
 // Получить промокод из URL
 var urlParams = new URLSearchParams(window.location.search);
@@ -163,6 +162,7 @@ function submitForm() {
     if (result.success) {
       btn.style.display = 'none';
       document.getElementById('success').style.display = 'block';
+      loadPaymentWidget();
     } else {
       err.textContent = 'Ошибка отправки. Напишите напрямую: @DEVALCOEUR';
       err.style.display = 'block';
@@ -174,31 +174,43 @@ function submitForm() {
     // Если скрипт не настроен — показать успех и дать контакты
     btn.style.display = 'none';
     document.getElementById('success').style.display = 'block';
+      loadPaymentWidget();
   });
 }
 
-// Prix dynamique : bascule sur 75 000 si le code partenaire est valide
-(function(){
-  if(!refCode) return;
-  var code = refCode.trim().toUpperCase();
+// Validation du code partenaire (pour le prix réduit)
+var isPromoValid = false;
+if (refCode) {
+  var _code = refCode.trim().toUpperCase();
   fetch("https://firestore.googleapis.com/v1/projects/kurs-probuzhdenie-1/databases/(default)/documents/partners")
     .then(function(r){ return r.json(); })
     .then(function(data){
       var docs = (data && data.documents) || [];
-      var ok = docs.some(function(d){
+      isPromoValid = docs.some(function(d){
         var c = d.fields && d.fields.code && d.fields.code.stringValue;
-        return c && c.trim().toUpperCase() === code;
+        return c && c.trim().toUpperCase() === _code;
       });
-      if(!ok) return;
-      var f=document.getElementById('rk-btn-full'), p=document.getElementById('rk-btn-promo');
-      var pf=document.getElementById('rk-price-full'), pp=document.getElementById('rk-price-promo');
-      if(f)f.style.display='none';
-      if(p)p.style.display='block';
-      if(pf)pf.style.display='none';
-      if(pp)pp.style.display='block';
+      if (isPromoValid) {
+        var pf=document.getElementById('rk-price-full'), pp=document.getElementById('rk-price-promo');
+        if(pf)pf.style.display='none';
+        if(pp)pp.style.display='block';
+      }
     })
     .catch(function(){});
-})();
+}
+
+// Charge le bouton Robokassa quand le message de succès devient visible
+// (le charger dans une zone cachée provoquait les barres de défilement)
+function loadPaymentWidget() {
+  var container = document.getElementById('rk-btn');
+  if (!container || container.getAttribute('data-loaded')) return;
+  container.setAttribute('data-loaded', '1');
+  var id = isPromoValid ? 'fD0iUO3hmk2sqGKD8SMTAQ' : 'Oot4DXsIc0mqvAQFyYAsug';
+  var sc = document.createElement('script');
+  sc.type = 'text/javascript';
+  sc.src = 'https://auth.robokassa.ru/Merchant/PaymentForm/FormSS.js?EncodedInvoiceId=' + id;
+  container.appendChild(sc);
+}
 </script>
 </body>
 </html>
