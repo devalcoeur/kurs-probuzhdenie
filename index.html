@@ -189,9 +189,47 @@ footer{padding:2.5rem 4rem;display:flex;justify-content:space-between;align-item
   <p class="contact-sub">Зарегистрируйтесь сегодня и получите эксклюзивный подарок от мастера.</p>
   <a href="contact.html" class="btn-gold" style="display:inline-flex;align-items:center;gap:.8rem;padding:.95rem 2.4rem;background:linear-gradient(135deg,var(--gold),#a87a28);color:#0a0a0a;font-family:'Raleway',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;margin-bottom:1.5rem">Записаться на курс →</a><br><br>
   <div style="margin:1.5rem 0 .5rem;display:flex;flex-direction:column;align-items:center;gap:1.1rem">
-    <p class="section-tag" style="margin-bottom:0">Стоимость курса — 75 000 ₽</p>
-    <script type="text/javascript" src="https://auth.robokassa.ru/Merchant/PaymentForm/FormSS.js?EncodedInvoiceId=fD0iUO3hmk2sqGKD8SMTAQ"></script>
+    <p id="rk-price-full" class="section-tag" style="margin-bottom:0">Стоимость курса — 99 999 ₽</p>
+    <p id="rk-price-promo" class="section-tag" style="margin-bottom:0;display:none">
+      <span style="text-decoration:line-through;opacity:.5;margin-right:.5rem">99 999 ₽</span>
+      <span style="color:var(--gold);font-weight:700">75 000 ₽</span>
+      <span style="display:inline-block;margin-left:.5rem;padding:.15rem .55rem;background:var(--gold);color:#0a0a0a;border-radius:4px;font-size:.6rem;letter-spacing:.05em;vertical-align:middle">−25%</span>
+    </p>
+    <div id="rk-btn-full">
+      <script type="text/javascript" src="https://auth.robokassa.ru/Merchant/PaymentForm/FormSS.js?EncodedInvoiceId=Oot4DXsIc0mqvAQFyYAsug"></script>
+    </div>
+    <div id="rk-btn-promo" style="display:none">
+      <script type="text/javascript" src="https://auth.robokassa.ru/Merchant/PaymentForm/FormSS.js?EncodedInvoiceId=fD0iUO3hmk2sqGKD8SMTAQ"></script>
+    </div>
+    <p id="rk-promo-note" style="display:none;font-size:.72rem;color:#9BADC0;margin-top:.2rem">✓ Скидка 25% по промокоду партнёра применена</p>
   </div>
+  <script>
+  (function(){
+    function qp(n){ try{ return new URLSearchParams(window.location.search).get(n); }catch(e){ return null; } }
+    var ref = qp('ref');
+    if(!ref) return;
+    ref = ref.trim().toUpperCase();
+    fetch("https://firestore.googleapis.com/v1/projects/kurs-probuzhdenie-1/databases/(default)/documents/partners")
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var docs = (data && data.documents) || [];
+        var ok = docs.some(function(d){
+          var c = d.fields && d.fields.code && d.fields.code.stringValue;
+          return c && c.trim().toUpperCase() === ref;
+        });
+        if(!ok) return;
+        var f=document.getElementById('rk-btn-full'), p=document.getElementById('rk-btn-promo');
+        var pf=document.getElementById('rk-price-full'), pp=document.getElementById('rk-price-promo');
+        var nt=document.getElementById('rk-promo-note');
+        if(f)f.style.display='none';
+        if(p)p.style.display='block';
+        if(pf)pf.style.display='none';
+        if(pp)pp.style.display='block';
+        if(nt)nt.style.display='block';
+      })
+      .catch(function(){});
+  })();
+  </script>
   <div class="contact-methods">
     <div class="contact-card"><p class="cc-label">Телефон</p><a href="tel:+79660577779">+7 966 057 77 79</a></div>
     <div class="contact-card"><p class="cc-label">WhatsApp</p><a href="https://wa.me/79660577779">wa.me/79660577779</a></div>
