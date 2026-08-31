@@ -207,6 +207,9 @@ footer{padding:2.5rem 4rem;display:flex;justify-content:space-between;align-item
   (function(){
     function qp(n){ try{ return new URLSearchParams(window.location.search).get(n); }catch(e){ return null; } }
     var ref = qp('ref');
+    // Mémoriser le code s'il vient d'un lien ; sinon récupérer le code déjà mémorisé
+    if(ref){ try{ localStorage.setItem('partnerRef', ref.trim().toUpperCase()); }catch(e){} }
+    else { try{ ref = localStorage.getItem('partnerRef'); }catch(e){} }
     if(!ref) return;
     ref = ref.trim().toUpperCase();
     fetch("https://firestore.googleapis.com/v1/projects/kurs-probuzhdenie-1/databases/(default)/documents/partners")
